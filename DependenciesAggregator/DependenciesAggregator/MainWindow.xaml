@@ -50,42 +50,35 @@
             <Button Grid.Column="2" Name="ApplyBtn" Width="80" Margin="5" Background="DodgerBlue" Foreground="AliceBlue" Click="ApplyBtn_Click">Apply</Button>
         </Grid>
 
-        <TreeView Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0" Name="TreeView" Margin="5">
-            <TreeView.ItemTemplate >
-                <DataTemplate DataType="local:ProjectModel">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="-" FontSize="18" FontWeight="Black"/>
-                            <Label Content="{Binding Name}" FontSize="18" FontWeight="Black"/>
-                        </StackPanel>
-
-                        <Label Margin="35,0,0,0" Content="Packages:" FontSize="16" FontWeight="DemiBold"/>
-                        <TreeView Margin="40,0,0,0" ItemsSource="{Binding Packages}" BorderBrush="Transparent">
-                            <TreeView.ItemTemplate>
-                                <DataTemplate DataType="local:PackageModel">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="Assets/nuget_icon.png" Height="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
-                                        <Label Content="{Binding Name}" FontSize="14" Foreground="DarkSlateBlue"/>
-                                        <Label Content="{Binding Version}" FontSize="14" FontWeight="DemiBold"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
-
-                        <Label Margin="35,0,0,0" Content="Projects:" FontSize="16" FontWeight="DemiBold"/>
-                        <TreeView Margin="40,0,0,0" ItemsSource="{Binding Projects}" BorderBrush="Transparent">
-                            <TreeView.ItemTemplate >
-                                <DataTemplate DataType="local:ProjectModel">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="Assets/csproj_icon.png" Height="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
-                                        <Label Content="{Binding Name}" FontSize="14" Foreground="DarkSlateGray"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
-                    </StackPanel>
-                </DataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+        <DockPanel Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0" Margin="5">
+            <ListBox DockPanel.Dock="Left" Width="300" Name="ProjectsList" SelectionChanged="ProjectsList_OnSelectionChanged"/>
+            <ScrollViewer Padding="5">
+                <StackPanel Margin="5,0,0,0" CanVerticallyScroll="True">
+                    <Label Content="Packages" FontSize="16" FontWeight="DemiBold"/>
+                    <ListBox Name="PackageDependencies">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="local:PackageModel">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="Assets/nuget_icon_32x32.png" Height="18" Width="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
+                                    <Label Content="{Binding Name}" FontSize="14" Foreground="DarkSlateBlue"/>
+                                    <Label Content="{Binding Version}" FontSize="14" FontWeight="DemiBold"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Label Content="Projects" FontSize="16" FontWeight="DemiBold"/>
+                    <ListBox Name="ProjectDependencies">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="local:ProjectModel">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="Assets/csproj_icon_32x32.png" Height="18" Width="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
+                                    <Label Content="{Binding Name}" FontSize="14" Foreground="DarkSlateGray"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
     </Grid>
 </Window>

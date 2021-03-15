@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using DependenciesAggregator.Abstractions.Interfaces;
 using DependenciesAggregator.BusinessLogic;
 using DependenciesAggregator.Contracts;
@@ -14,7 +15,8 @@ namespace DependenciesAggregator
     public partial class MainWindow : Window
     {
         private readonly IAggregator aggregator;
-
+        private readonly List<ProjectModel> projects = new List<ProjectModel>();
+        
         public MainWindow()
         {
             this.aggregator = new Aggregator();
@@ -48,7 +50,26 @@ namespace DependenciesAggregator
 
         private void Draw(List<ProjectModel> projects)
         {
-            this.TreeView.ItemsSource = projects;
+            this.projects.Clear();
+            this.projects.AddRange(projects);
+            this.ProjectsList.ItemsSource = this.projects.Select(p => p.Name);
+            this.ProjectsList.SelectedIndex = 0;
+        }
+
+
+        private void ProjectsList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.ProjectsList.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            var selectedProj = this.projects[this.ProjectsList.SelectedIndex];
+            this.PackageDependencies.ItemsSource = selectedProj.Packages;
+            this.ProjectDependencies.ItemsSource = selectedProj.Projects;
+
+            this.PackageDependencies.Visibility = selectedProj.Packages.Any() ? Visibility.Visible : Visibility.Hidden;
+            this.PackageDependencies.Visibility = selectedProj.Packages.Any() ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }

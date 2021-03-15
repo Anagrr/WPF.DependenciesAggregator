@@ -16,7 +16,9 @@
 
   <ItemGroup>
     <None Remove="Assets\csproj_icon.png" />
+    <None Remove="Assets\csproj_icon_32x32.png" />
     <None Remove="Assets\nuget_icon.png" />
+    <None Remove="Assets\nuget_icon_32x32.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +27,9 @@
 
   <ItemGroup>
     <Resource Include="Assets\csproj_icon.png" />
+    <Resource Include="Assets\csproj_icon_32x32.png" />
     <Resource Include="Assets\nuget_icon.png" />
+    <Resource Include="Assets\nuget_icon_32x32.png" />
   </ItemGroup>
 
 </Project>
