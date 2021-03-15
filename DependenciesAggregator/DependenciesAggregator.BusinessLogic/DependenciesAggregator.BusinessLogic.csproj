@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DependenciesAggregator.Abstractions\DependenciesAggregator.Abstractions.csproj" />
+    <ProjectReference Include="..\DependenciesAggregator.Contracts\DependenciesAggregator.Contracts.csproj" />
+    <ProjectReference Include="..\DependenciesAggregator.Integrations\DependenciesAggregator.Integrations.csproj" />
+  </ItemGroup>
+
+</Project>
