@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using DependenciesAggregator.Abstractions.Interfaces;
-using DependenciesAggregator.BusinessLogic;
 using DependenciesAggregator.Contracts;
+using DependenciesAggregator.Integrations.Interfaces.Nuget;
 
 namespace DependenciesAggregator
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private readonly IAggregator aggregator;
+        private readonly INugetFeedClient nugetFeedClient;
         private readonly List<ProjectModel> projects = new List<ProjectModel>();
         
-        public MainWindow()
+        public MainWindow(IAggregator aggregator, INugetFeedClient nugetFeedClient)
         {
-            this.aggregator = new Aggregator();
+            this.aggregator = aggregator;
+            this.nugetFeedClient = nugetFeedClient;
+
             InitializeComponent();
             this.RootDirPathInput.Text = @"C:\\Projects";
         }
@@ -34,24 +35,29 @@ namespace DependenciesAggregator
         {
             var packName = this.PackageNameInput.Text;
             var dependencyName = this.DependencyNameInput.Text;
+            
+            if (string.IsNullOrEmpty(packName+dependencyName))
+            {
+                return;
+            }
 
-            var packs = this.aggregator.Projects
-                .Where(p => p.Name.Contains(packName, StringComparison.OrdinalIgnoreCase))
-                .Where(p => p.Packages.Any(d => d.Name.Contains(dependencyName, StringComparison.OrdinalIgnoreCase))
-                         || p.Projects.Any(d => d.Name.Contains(dependencyName, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
+            var packs = this.aggregator.FilterProjects(
+                    p => p.Name.Contains(packName, StringComparison.OrdinalIgnoreCase)
+                     && (p.Packages.Any(d => d.Name.Contains(dependencyName, StringComparison.OrdinalIgnoreCase))
+                        || p.Projects.Any(d => d.Name.Contains(dependencyName, StringComparison.OrdinalIgnoreCase)))).ToList();
+            
             this.Draw(packs);
         }
 
         private void DrawAll()
         {
-            this.Draw(this.aggregator.Projects);
+            this.Draw(this.aggregator.AllProjects);
         }
 
-        private void Draw(List<ProjectModel> projects)
+        private void Draw(IEnumerable<ProjectModel> items)
         {
             this.projects.Clear();
-            this.projects.AddRange(projects);
+            this.projects.AddRange(items);
             this.ProjectsList.ItemsSource = this.projects.Select(p => p.Name);
             this.ProjectsList.SelectedIndex = 0;
         }
@@ -67,9 +73,24 @@ namespace DependenciesAggregator
             var selectedProj = this.projects[this.ProjectsList.SelectedIndex];
             this.PackageDependencies.ItemsSource = selectedProj.Packages;
             this.ProjectDependencies.ItemsSource = selectedProj.Projects;
+        }
 
-            this.PackageDependencies.Visibility = selectedProj.Packages.Any() ? Visibility.Visible : Visibility.Hidden;
-            this.PackageDependencies.Visibility = selectedProj.Packages.Any() ? Visibility.Visible : Visibility.Hidden;
+        private void PackageDepsList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.ProjectsList.SelectedIndex < 0 || this.PackageDependencies.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            var selectedPackage = this.projects[this.ProjectsList.SelectedIndex].Packages[this.PackageDependencies.SelectedIndex];
+            // todo
+
+            Task.Run(() => this.nugetFeedClient.GetPackageMetadata(selectedPackage.Name, selectedPackage.Version))
+                .ContinueWith(task =>
+                {
+                    var meta = task.Result;
+                });
+            
         }
     }
 }

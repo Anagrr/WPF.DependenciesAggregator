@@ -4,17 +4,19 @@ using DependenciesAggregator.Integrations.Interfaces;
 
 namespace DependenciesAggregator.Integrations.Implementations
 {
-    public class LocalSourceProvider : IProvider
+    public class LocalSourceProvider : ILocalSourceProvider
     {
-        private readonly string rootDir;
-        public LocalSourceProvider(string rootDir)
-        {
-            this.rootDir = rootDir;
-        }
-
+        private string rootDir;
+        
         public IEnumerable<string> FetchData()
         {
             return Directory.EnumerateFiles(this.rootDir, "*.csproj", SearchOption.AllDirectories);
+        }
+
+        public ILocalSourceProvider WithRootDir(string rootDir)
+        {
+            this.rootDir = rootDir;
+            return this;
         }
     }
 }

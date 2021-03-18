@@ -1,36 +1,46 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 using DependenciesAggregator.Abstractions.Interfaces;
 using DependenciesAggregator.Contracts;
-using DependenciesAggregator.Integrations.Implementations;
+using DependenciesAggregator.Integrations.Interfaces;
 
 namespace DependenciesAggregator.BusinessLogic
 {
     public class Aggregator : IAggregator
     {
         private readonly ICsprojFileProcessor processor;
+        private readonly ILocalSourceProvider localSourceProvider;
+        private readonly IAzureDevOpsProvider azureDevOpsProvider;
 
-        public List<ProjectModel> Projects { get; } = new List<ProjectModel>();
-
-        public Aggregator()
+        public List<ProjectModel> AllProjects { get; } = new List<ProjectModel>();
+        
+        public List<ProjectModel> FilterProjects(Func<ProjectModel, bool> filter)
         {
-            this.processor = new CsprojFileProcessor();
+            return this.AllProjects.Where(filter).ToList();
+        }
+
+        public Aggregator(ICsprojFileProcessor processor, ILocalSourceProvider localSourceProvider, IAzureDevOpsProvider azureDevOpsProvider)
+        {
+            this.processor = processor;
+            this.localSourceProvider = localSourceProvider;
+            this.azureDevOpsProvider = azureDevOpsProvider;
+
         }
 
         public void AggregateFromAzure(List<string> linksToRepositories)
         {
-            this.Aggregate(new AzureDevOpsProvider(linksToRepositories).FetchData());
+            this.Aggregate(this.azureDevOpsProvider.ForRepositories(linksToRepositories).FetchData());
         }
 
         public void AggregateFromLocal(string rootDirectory)
         {
-            this.Aggregate(new LocalSourceProvider(rootDirectory).FetchData());
+            this.Aggregate(localSourceProvider.WithRootDir(rootDirectory).FetchData());
         }
 
         private void Aggregate(IEnumerable<string> filesPathes)
         {
-            this.Projects.Clear();
+            this.AllProjects.Clear();
 
             foreach (var path in filesPathes)
             {
@@ -41,12 +51,12 @@ namespace DependenciesAggregator.BusinessLogic
                     continue;
                 }
 
-                if (this.Projects.Any(p => p.Name.Equals(projectModel.Name)))
+                if (this.AllProjects.Any(p => p.Name.Equals(projectModel.Name)))
                 {
                     projectModel.Name = path;
                 }
 
-                this.Projects.Add(projectModel);
+                this.AllProjects.Add(projectModel);
             }
         }
 

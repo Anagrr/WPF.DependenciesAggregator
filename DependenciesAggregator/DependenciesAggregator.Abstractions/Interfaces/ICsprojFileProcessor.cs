@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using DependenciesAggregator.Contracts;
+﻿using DependenciesAggregator.Contracts;
 
 namespace DependenciesAggregator.Abstractions.Interfaces
 {

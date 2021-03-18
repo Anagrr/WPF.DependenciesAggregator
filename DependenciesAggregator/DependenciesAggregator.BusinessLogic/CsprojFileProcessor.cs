@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
 using DependenciesAggregator.Abstractions.Interfaces;
 using DependenciesAggregator.Contracts;
@@ -11,18 +9,23 @@ namespace DependenciesAggregator.BusinessLogic
 {
     public class CsprojFileProcessor : ICsprojFileProcessor
     {
-        private Func<XElement, bool> IsPackageDependecy = el =>
-            el.Name.ToString().Equals("PackageReference") && el.Attribute("Include") != null;
+        private const string PackageReferenceTag = "PackageReference";
+        private const string ProjectReferenceTag = "ProjectReference";
+        private const string ItemGroupTag = "ItemGroup";
+        private const string IncludeAttribute = "Include";
 
-        private Func<XElement, bool> IsProjectDependecy = el =>
-                    el.Name.ToString().Equals("ProjectReference") && el.Attribute("Include") != null;
+        private readonly Func<XElement, bool> IsPackageDependecy = el =>
+            el.Name.ToString().Equals(PackageReferenceTag) && el.Attribute(IncludeAttribute) != null;
+
+        private readonly Func<XElement, bool> IsProjectDependecy = el =>
+                    el.Name.ToString().Equals(ProjectReferenceTag) && el.Attribute(IncludeAttribute) != null;
 
 
         public ProjectModel Process(string xmlFilePath)
         {
             var dependenciesQuery = XElement.Load(xmlFilePath).Elements()
-                .Where(x => x.Name.ToString().Equals("ItemGroup"))
-                .SelectMany(x => x.Elements());
+                .Where(x => x.Name.ToString().Equals(ItemGroupTag))
+                .SelectMany(x => x.Elements()).AsQueryable();
 
             return new ProjectModel
             {
@@ -30,20 +33,14 @@ namespace DependenciesAggregator.BusinessLogic
                 Packages = dependenciesQuery.Where(el => this.IsPackageDependecy(el))
                     .Select(el => new PackageModel
                     {
-                        Name = el.Attribute("Include").Value,
-                        Version = this.GetVersionString(el)
+                        Name = el.Attribute(IncludeAttribute).Value,
+                        Version = el.Attribute("Version").Value
                     })
                     .ToList(),
                 Projects = dependenciesQuery.Where(el => this.IsProjectDependecy(el))
-                    .Select(el => new ProjectModel { Name = el.Attribute("Include").Value })
+                    .Select(el => new ProjectModel { Name = el.Attribute(IncludeAttribute).Value })
                     .ToList()
             };
-        }
-
-        private string GetVersionString(XElement el)
-        {
-            var v = el.Attribute("Version")?.Value;
-            return string.IsNullOrEmpty(v) ? string.Empty : $"v.{v}";
         }
     }
 }

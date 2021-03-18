@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DependenciesAggregator.Contracts;
 
 namespace DependenciesAggregator.Abstractions.Interfaces
@@ -11,6 +12,7 @@ namespace DependenciesAggregator.Abstractions.Interfaces
 
         void ExportToFile();
 
-        List<ProjectModel> Projects { get; }
+        List<ProjectModel> AllProjects { get; }
+        List<ProjectModel> FilterProjects(Func<ProjectModel, bool> filter);
     }
 }
