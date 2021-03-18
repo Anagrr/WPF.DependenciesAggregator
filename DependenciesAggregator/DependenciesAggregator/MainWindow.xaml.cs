@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,20 +16,53 @@ namespace DependenciesAggregator
         private readonly IAggregator aggregator;
         private readonly INugetFeedClient nugetFeedClient;
         private readonly List<ProjectModel> projects = new List<ProjectModel>();
+
+        private BackgroundWorker aggregateWorker;
         
         public MainWindow(IAggregator aggregator, INugetFeedClient nugetFeedClient)
         {
             this.aggregator = aggregator;
             this.nugetFeedClient = nugetFeedClient;
 
+            this.aggregateWorker = new BackgroundWorker
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = false
+            };
+
+            this.aggregateWorker.RunWorkerCompleted += this.AggregateWorkerOnRunWorkerCompleted;
+            this.aggregateWorker.DoWork += this.AggregateWorkerOnDoWork;
+            this.aggregateWorker.ProgressChanged += this.AggregateWorkerOnProgressChanged;
+
             InitializeComponent();
             this.RootDirPathInput.Text = @"C:\\Projects";
         }
 
+        private void AggregateWorkerOnProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            // TODO: somehow display progress
+        }
+
+        private void AggregateWorkerOnDoWork(object sender, DoWorkEventArgs e)
+        {
+            this.aggregator.AggregateFromLocal(e.Argument.ToString());
+        }
+
+        private void AggregateWorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            this.DrawAll();
+        }
+
+        ~MainWindow()
+        {
+            this.aggregateWorker.RunWorkerCompleted -= this.AggregateWorkerOnRunWorkerCompleted;
+            this.aggregateWorker.DoWork -= this.AggregateWorkerOnDoWork;
+            this.aggregateWorker.ProgressChanged -= this.AggregateWorkerOnProgressChanged;
+        }
+
         private void Aggregate_Click(object sender, RoutedEventArgs e)
         {
-            this.aggregator.AggregateFromLocal(this.RootDirPathInput.Text);
-            this.DrawAll();
+            this.aggregateWorker.RunWorkerAsync(this.RootDirPathInput.Text);
         }
 
         private void ApplyBtn_Click(object sender, RoutedEventArgs e)
