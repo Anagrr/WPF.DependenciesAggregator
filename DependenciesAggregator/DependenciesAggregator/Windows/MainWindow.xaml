@@ -6,12 +6,13 @@
         xmlns:local ="clr-namespace:DependenciesAggregator.Contracts;assembly=DependenciesAggregator.Contracts"
         mc:Ignorable="d"
         Title="Dependencies Aggregator" Height="500" Width="900">
-    <Grid>
+    <Grid Name="Root">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -51,14 +52,14 @@
 
         <DockPanel Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0" Margin="5">
             <ListBox DockPanel.Dock="Left" Width="300" Name="ProjectsList" SelectionChanged="ProjectsList_OnSelectionChanged"/>
-            <ScrollViewer Padding="5" BorderBrush="Black">
-                <StackPanel Margin="5,0,0,0" CanVerticallyScroll="True">
+            <ScrollViewer Padding="5,0,5,0">
+                <StackPanel Margin="5,0,0,0">
                     <Label Content="Packages" FontSize="16" FontWeight="DemiBold"/>
                     <ListBox Name="PackageDependencies" SelectionChanged="PackageDepsList_OnSelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="local:PackageModel">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="Assets/nuget_icon_32x32.png" Height="18" Width="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
+                                    <Image Source="../Assets/nuget_icon_32x32.png" Height="18" Width="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
                                     <Label Content="{Binding Name}" FontSize="14" Foreground="DarkSlateBlue"/>
                                     <Label Content="{Binding Version}" FontSize="14" FontWeight="DemiBold"/>
                                 </StackPanel>
@@ -70,7 +71,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="local:ProjectModel">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="Assets/csproj_icon_32x32.png" Height="18" Width="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
+                                    <Image Source="../Assets/csproj_icon_32x32.png" Height="18" Width="18" SnapsToDevicePixels="True" Stretch="UniformToFill"/>
                                     <Label Content="{Binding Name}" FontSize="14" Foreground="DarkSlateGray"/>
                                 </StackPanel>
                             </DataTemplate>
@@ -79,5 +80,17 @@
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
+        <StatusBar Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Name="StatusBar">
+            <StatusBarItem>
+                <Grid Width="{Binding Path=ActualWidth, ElementName=Root}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Margin="5,0,5,0" Grid.Column="0" Name="StatusLabel"/>
+                    <ProgressBar Grid.Row="0" Grid.Column="1" Name="ProgressBar"/>
+                </Grid>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

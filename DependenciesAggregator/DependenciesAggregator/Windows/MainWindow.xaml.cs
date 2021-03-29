@@ -117,8 +117,7 @@ namespace DependenciesAggregator
             }
 
             var selectedPackage = this.projects[this.ProjectsList.SelectedIndex].Packages[this.PackageDependencies.SelectedIndex];
-            // todo
-
+            
             Task.Run(() => this.nugetFeedClient.GetPackageMetadata(selectedPackage.Name, selectedPackage.Version))
                 .ContinueWith(task =>
                 {

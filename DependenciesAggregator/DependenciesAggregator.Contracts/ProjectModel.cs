@@ -23,8 +23,8 @@ namespace DependenciesAggregator.Contracts
             set => this.name = value;
         }
 
-        public List<PackageModel> Packages { get; set; }
+        public List<PackageModel> Packages { get; set; } = new List<PackageModel>();
 
-        public List<ProjectModel> Projects { get; set; }
+        public List<ProjectModel> Projects { get; set; } = new List<ProjectModel>();
     }
 }

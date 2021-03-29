@@ -25,7 +25,9 @@ namespace DependenciesAggregator.BusinessLogic
         {
             var dependenciesQuery = XElement.Load(xmlFilePath).Elements()
                 .Where(x => x.Name.ToString().Equals(ItemGroupTag))
-                .SelectMany(x => x.Elements()).AsQueryable();
+                .SelectMany(x => x.Elements())
+                .Where(el => this.IsPackageDependecy(el) || this.IsProjectDependecy(el))
+                .AsQueryable();
 
             return new ProjectModel
             {
@@ -34,13 +36,18 @@ namespace DependenciesAggregator.BusinessLogic
                     .Select(el => new PackageModel
                     {
                         Name = el.Attribute(IncludeAttribute).Value,
-                        Version = el.Attribute("Version").Value
+                        Version = this.GetVersion(el)
                     })
                     .ToList(),
                 Projects = dependenciesQuery.Where(el => this.IsProjectDependecy(el))
                     .Select(el => new ProjectModel { Name = el.Attribute(IncludeAttribute).Value })
                     .ToList()
             };
+        }
+
+        private string GetVersion(XElement el)
+        {
+            return el.Attribute("Version")?.Value;
         }
     }
 }

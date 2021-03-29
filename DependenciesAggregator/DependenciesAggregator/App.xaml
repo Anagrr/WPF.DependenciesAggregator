@@ -4,6 +4,5 @@
              xmlns:local="clr-namespace:DependenciesAggregator"
              Startup="OnStartup">
     <Application.Resources>
-         
     </Application.Resources>
 </Application>
